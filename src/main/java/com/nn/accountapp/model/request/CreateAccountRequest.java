@@ -1,4 +1,4 @@
-package com.nn.accountapp.model.dto;
+package com.nn.accountapp.model.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;

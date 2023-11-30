@@ -1,9 +1,12 @@
 package com.nn.accountapp.service;
 
+import com.nn.accountapp.exception.AccountNotFoundException;
 import com.nn.accountapp.mapper.AccountEntityToAccountDTOMapper;
+import com.nn.accountapp.mapper.AccountEntityToAccountInfoResponseMapper;
 import com.nn.accountapp.mapper.CreateAccountEntityToAccountResponseMapper;
 import com.nn.accountapp.model.dto.AccountDTO;
-import com.nn.accountapp.model.dto.CreateAccountResponse;
+import com.nn.accountapp.model.response.AccountInfoResponse;
+import com.nn.accountapp.model.response.CreateAccountResponse;
 import com.nn.accountapp.model.entity.AccountEntity;
 import com.nn.accountapp.model.entity.SubAccountEntity;
 import com.nn.accountapp.model.enumeration.AllowedCurrency;
@@ -25,6 +28,7 @@ public class AccountService {
 
     AccountEntityToAccountDTOMapper accountDtoToAccountEntityMapper = AccountEntityToAccountDTOMapper.INSTANCE;
     CreateAccountEntityToAccountResponseMapper createAccountEntityToAccountResponseMapper = CreateAccountEntityToAccountResponseMapper.INSTANCE;
+    AccountEntityToAccountInfoResponseMapper accountEntityToAccountInfoResponseMapper = AccountEntityToAccountInfoResponseMapper.INSTANCE;
 
     private final AccountRepository accountRepository;
 
@@ -53,6 +57,13 @@ public class AccountService {
                     .build();
             accountEntity.getSubAccounts().add(currencyAmountEntity);
         }
+    }
+
+    public AccountInfoResponse getAccount(@NotNull final UUID identificationNumber) throws AccountNotFoundException {
+        AccountEntity accountEntity = accountRepository.findByIdentificationNumber(identificationNumber)
+                .orElseThrow(() -> new AccountNotFoundException("Account " + identificationNumber + " not found"));
+        AccountInfoResponse accountInfoResponse = accountEntityToAccountInfoResponseMapper.mapAccountEntityToAccountInfoResponse(accountEntity);
+        return accountInfoResponse;
     }
 }
 

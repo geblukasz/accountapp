@@ -1,7 +1,7 @@
 package com.nn.accountapp.mapper;
 
 import com.nn.accountapp.model.dto.UpdateAccountDTO;
-import com.nn.accountapp.model.dto.UpdateAccountRequest;
+import com.nn.accountapp.model.request.UpdateAccountRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
