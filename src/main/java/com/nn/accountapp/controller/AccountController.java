@@ -7,6 +7,7 @@ import com.nn.accountapp.mapper.CreateAccountRequestToAccountDTO;
 import com.nn.accountapp.mapper.UpdateAccountRequestToUpdateAccountDTO;
 import com.nn.accountapp.model.dto.*;
 import com.nn.accountapp.service.AccountService;
+import com.nn.accountapp.service.ExchangeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
@@ -28,9 +29,11 @@ public class AccountController {
     private UpdateAccountRequestToUpdateAccountDTO updateAccountRequestToUpdateAccountDTO = UpdateAccountRequestToUpdateAccountDTO.INSTANCE;
 
     private final AccountService accountService;
+    private final ExchangeService exchangeService;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService, ExchangeService exchangeService) {
         this.accountService = accountService;
+        this.exchangeService = exchangeService;
     }
 
     @PostMapping("/")
@@ -60,7 +63,7 @@ public class AccountController {
                                                                @RequestBody @Valid final UpdateAccountRequest updateAccountRequest)
             throws NotEnoughMoneyException, AccountNotFoundException, CurrencyNotFoundException {
         final UpdateAccountDTO updateAccountDTO = updateAccountRequestToUpdateAccountDTO.accountDtoToAccountEntity(updateAccountRequest, identificationNumber);
-        final UpdateAccountResponse response = accountService.exchangeCurrency(updateAccountDTO);
+        final UpdateAccountResponse response = exchangeService.exchangeCurrency(updateAccountDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
