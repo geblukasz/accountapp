@@ -8,6 +8,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface CreateAccountRequestToAccountDTO {
 
+
     CreateAccountRequestToAccountDTO INSTANCE = Mappers.getMapper(CreateAccountRequestToAccountDTO.class);
 
     AccountDTO accountDtoToAccountEntity(CreateAccountRequest createAccountRequest);

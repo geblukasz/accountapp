@@ -18,7 +18,7 @@ public class CalculationAccountDTO {
 
     private BigDecimal amountFrom;
     private BigDecimal exchangePrice;
-    private SubAccountEntity baseCurrency;
-    private SubAccountEntity otherCurrency;
+    private SubAccountEntity baseSubAccountEntity;
+    private SubAccountEntity otherSubaccountEntity;
 
 }

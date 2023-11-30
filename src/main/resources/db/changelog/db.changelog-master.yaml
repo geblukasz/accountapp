@@ -26,3 +26,39 @@ databaseChangeLog:
                   type: uuid
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 2
+      author: lgebicki
+      changes:
+        - createTable:
+            tableName: subaccount
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: account_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount
+                  type: numeric(20,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: subaccount
+            baseColumnNames: account_id
+            referencedTableName: account
+            referencedColumnNames: id
+            constraintName: fk_subaccount_account
+            onDelete: CASCADE
