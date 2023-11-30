@@ -6,6 +6,11 @@ import com.nn.accountapp.exception.NotEnoughMoneyException;
 import com.nn.accountapp.mapper.CreateAccountRequestToAccountDTO;
 import com.nn.accountapp.mapper.UpdateAccountRequestToUpdateAccountDTO;
 import com.nn.accountapp.model.dto.*;
+import com.nn.accountapp.model.request.CreateAccountRequest;
+import com.nn.accountapp.model.request.UpdateAccountRequest;
+import com.nn.accountapp.model.response.AccountInfoResponse;
+import com.nn.accountapp.model.response.CreateAccountResponse;
+import com.nn.accountapp.model.response.UpdateAccountResponse;
 import com.nn.accountapp.service.AccountService;
 import com.nn.accountapp.service.ExchangeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,5 +70,18 @@ public class AccountController {
         final UpdateAccountDTO updateAccountDTO = updateAccountRequestToUpdateAccountDTO.accountDtoToAccountEntity(updateAccountRequest, identificationNumber);
         final UpdateAccountResponse response = exchangeService.exchangeCurrency(updateAccountDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/")
+    @Operation(summary = "Get account", description = "Get account using identification number received when creating an account.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Account found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad request"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Account not found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<AccountInfoResponse> getAccount(@RequestHeader(defaultValue = "6f323a5b-083a-42f7-a775-2fe75156bf4e") UUID identificationNumber) throws AccountNotFoundException {
+        final AccountInfoResponse accountInfoResponse = accountService.getAccount(identificationNumber);
+        return new ResponseEntity<>(accountInfoResponse, HttpStatus.OK);
     }
 }

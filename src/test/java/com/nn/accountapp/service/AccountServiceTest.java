@@ -1,7 +1,7 @@
 package com.nn.accountapp.service;
 
 import com.nn.accountapp.model.dto.AccountDTO;
-import com.nn.accountapp.model.dto.CreateAccountResponse;
+import com.nn.accountapp.model.response.CreateAccountResponse;
 import com.nn.accountapp.model.entity.AccountEntity;
 import com.nn.accountapp.model.entity.SubAccountEntity;
 import com.nn.accountapp.model.enumeration.AllowedCurrency;

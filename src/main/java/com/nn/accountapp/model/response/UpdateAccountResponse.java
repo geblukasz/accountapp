@@ -1,4 +1,4 @@
-package com.nn.accountapp.model.dto;
+package com.nn.accountapp.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CreateAccountResponse {
+public class UpdateAccountResponse {
 
     private UUID identificationNumber;
 

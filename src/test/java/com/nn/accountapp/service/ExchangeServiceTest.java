@@ -6,7 +6,7 @@ import com.nn.accountapp.exception.AccountNotFoundException;
 import com.nn.accountapp.exception.CurrencyNotFoundException;
 import com.nn.accountapp.exception.NotEnoughMoneyException;
 import com.nn.accountapp.model.dto.UpdateAccountDTO;
-import com.nn.accountapp.model.dto.UpdateAccountResponse;
+import com.nn.accountapp.model.response.UpdateAccountResponse;
 import com.nn.accountapp.model.entity.AccountEntity;
 import com.nn.accountapp.model.entity.SubAccountEntity;
 import com.nn.accountapp.model.enumeration.AllowedCurrency;
