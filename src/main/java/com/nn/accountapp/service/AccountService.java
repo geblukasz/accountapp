@@ -62,8 +62,7 @@ public class AccountService {
     public AccountInfoResponse getAccount(@NotNull final UUID identificationNumber) throws AccountNotFoundException {
         AccountEntity accountEntity = accountRepository.findByIdentificationNumber(identificationNumber)
                 .orElseThrow(() -> new AccountNotFoundException("Account " + identificationNumber + " not found"));
-        AccountInfoResponse accountInfoResponse = accountEntityToAccountInfoResponseMapper.mapAccountEntityToAccountInfoResponse(accountEntity);
-        return accountInfoResponse;
+        return accountEntityToAccountInfoResponseMapper.mapAccountEntityToAccountInfoResponse(accountEntity);
     }
 }
 
