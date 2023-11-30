@@ -5,8 +5,6 @@ import com.nn.accountapp.client.ExchangeRateProviderClient;
 import com.nn.accountapp.exception.AccountNotFoundException;
 import com.nn.accountapp.exception.CurrencyNotFoundException;
 import com.nn.accountapp.exception.NotEnoughMoneyException;
-import com.nn.accountapp.mapper.AccountEntityToAccountDTOMapper;
-import com.nn.accountapp.mapper.CreateAccountEntityToAccountResponseMapper;
 import com.nn.accountapp.model.dto.UpdateAccountDTO;
 import com.nn.accountapp.model.dto.UpdateAccountResponse;
 import com.nn.accountapp.model.entity.AccountEntity;
@@ -15,7 +13,7 @@ import com.nn.accountapp.model.enumeration.AllowedCurrency;
 import com.nn.accountapp.model.exchange.response.ExchangeCurrencyResponse;
 import com.nn.accountapp.model.exchange.response.Rate;
 import com.nn.accountapp.repository.AccountRepository;
-import io.github.benas.randombeans.api.EnhancedRandom;
+import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +25,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 
 import static com.nn.accountapp.model.enumeration.AllowedCurrency.PLN;
 import static com.nn.accountapp.model.enumeration.AllowedCurrency.USD;
@@ -41,17 +38,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
 
-    private static final AllowedCurrency BASE_CURRENCY_CODE = PLN;
-
     @InjectMocks
     private AccountService accountService;
-
-    @Mock
-    private AccountEntityToAccountDTOMapper accountDtoToAccountEntityMapper;
-
-
-    @Mock
-    private CreateAccountEntityToAccountResponseMapper createAccountEntityToAccountResponseMapper;
 
     @Mock
     private AccountRepository accountRepository;
@@ -65,7 +53,7 @@ class AccountServiceTest {
     }
 
     private ExchangeCurrencyResponse createExchangeRate() {
-        ExchangeCurrencyResponse exchangeRate = EnhancedRandom.random(ExchangeCurrencyResponse.class);
+        ExchangeCurrencyResponse exchangeRate = new EasyRandom().nextObject(ExchangeCurrencyResponse.class);
         Rate rate = new Rate();
         rate.setAsk(BigDecimal.valueOf(3.45));
         rate.setBid(BigDecimal.valueOf(3.35));
@@ -74,7 +62,7 @@ class AccountServiceTest {
     }
 
     private AccountEntity createAccountEntity(AllowedCurrency currencyCodeFrom, AllowedCurrency currencyCodeTo, BigDecimal initialAmountFrom, BigDecimal initialAmountTo) {
-        AccountEntity accountEntity = EnhancedRandom.random(AccountEntity.class);
+        AccountEntity accountEntity = new EasyRandom().nextObject(AccountEntity.class);
         SubAccountEntity currencyAmountEntityFrom = new SubAccountEntity(1, accountEntity, initialAmountFrom, currencyCodeFrom);
         SubAccountEntity currencyAmountEntityTo = new SubAccountEntity(1, accountEntity, initialAmountTo, currencyCodeTo);
         accountEntity.setCurrencyAmounts(List.of(currencyAmountEntityFrom, currencyAmountEntityTo));

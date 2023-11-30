@@ -1,4 +1,4 @@
-package com.nn.accountapp.model.exchange.response;
+package com.nn.accountapp.model.exchange;
 
 import lombok.Data;
 

@@ -1,6 +1,5 @@
 package com.nn.accountapp.repository;
 
-
 import com.nn.accountapp.model.entity.AccountEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
