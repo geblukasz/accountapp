@@ -24,7 +24,7 @@ public class AccountEntity {
     private UUID identificationNumber;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubAccountEntity> currencyAmounts;
+    private List<SubAccountEntity> subAccounts;
 
 
 }

@@ -1,39 +1,24 @@
 package com.nn.accountapp.service;
 
-
-import com.nn.accountapp.client.ExchangeRateProviderClient;
-import com.nn.accountapp.exception.AccountNotFoundException;
-import com.nn.accountapp.exception.CurrencyNotFoundException;
-import com.nn.accountapp.exception.NotEnoughMoneyException;
-import com.nn.accountapp.model.dto.UpdateAccountDTO;
-import com.nn.accountapp.model.dto.UpdateAccountResponse;
+import com.nn.accountapp.model.dto.AccountDTO;
+import com.nn.accountapp.model.dto.CreateAccountResponse;
 import com.nn.accountapp.model.entity.AccountEntity;
 import com.nn.accountapp.model.entity.SubAccountEntity;
 import com.nn.accountapp.model.enumeration.AllowedCurrency;
-import com.nn.accountapp.model.exchange.response.ExchangeCurrencyResponse;
-import com.nn.accountapp.model.exchange.response.Rate;
 import com.nn.accountapp.repository.AccountRepository;
 import org.jeasy.random.EasyRandom;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
-import static com.nn.accountapp.model.enumeration.AllowedCurrency.PLN;
-import static com.nn.accountapp.model.enumeration.AllowedCurrency.USD;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
@@ -44,93 +29,50 @@ class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
 
-    @Mock
-    private ExchangeRateProviderClient exchangeRateProviderClient;
-
-    private UpdateAccountDTO createUpdateAccountDTO(BigDecimal amountFrom, AllowedCurrency currencyCodeFrom, AllowedCurrency currencyCodeTo) {
-        UUID identificationNumber = UUID.randomUUID();
-        return new UpdateAccountDTO(identificationNumber, amountFrom, currencyCodeFrom, currencyCodeTo);
-    }
-
-    private ExchangeCurrencyResponse createExchangeRate() {
-        ExchangeCurrencyResponse exchangeRate = new EasyRandom().nextObject(ExchangeCurrencyResponse.class);
-        Rate rate = new Rate();
-        rate.setAsk(BigDecimal.valueOf(3.45));
-        rate.setBid(BigDecimal.valueOf(3.35));
-        exchangeRate.setRates(List.of(rate));
-        return exchangeRate;
-    }
-
-    private AccountEntity createAccountEntity(AllowedCurrency currencyCodeFrom, AllowedCurrency currencyCodeTo, BigDecimal initialAmountFrom, BigDecimal initialAmountTo) {
-        AccountEntity accountEntity = new EasyRandom().nextObject(AccountEntity.class);
-        SubAccountEntity currencyAmountEntityFrom = new SubAccountEntity(1, accountEntity, initialAmountFrom, currencyCodeFrom);
-        SubAccountEntity currencyAmountEntityTo = new SubAccountEntity(1, accountEntity, initialAmountTo, currencyCodeTo);
-        accountEntity.setCurrencyAmounts(List.of(currencyAmountEntityFrom, currencyAmountEntityTo));
-        return accountEntity;
-    }
-
-    @BeforeEach
-    void setUp() {
-        accountRepository = mock(AccountRepository.class);
-        exchangeRateProviderClient = mock(ExchangeRateProviderClient.class);
-        accountService = new AccountService(accountRepository, exchangeRateProviderClient);
-    }
-
     @Test
-    void testExchangeCurrency_whenExchangeRegularValues_shouldOk() throws NotEnoughMoneyException, AccountNotFoundException, CurrencyNotFoundException {
+    void testCreateAccount() {
         // given
-        UpdateAccountDTO updateAccountDTO = createUpdateAccountDTO(BigDecimal.valueOf(10), PLN, USD);
-        ExchangeCurrencyResponse exchangeRate = createExchangeRate();
-        AccountEntity accountEntity = createAccountEntity(PLN, USD, BigDecimal.valueOf(123.45), BigDecimal.ZERO);
+        AccountDTO accountDTO = new EasyRandom().nextObject(AccountDTO.class);
+        AccountEntity accountEntity = AccountEntity.builder().build();
 
         // when
-        when(accountRepository.findByIdentificationNumber(any(UUID.class))).thenReturn(Optional.of(accountEntity));
-        when(exchangeRateProviderClient.getExchangeRate(anyString())).thenReturn(exchangeRate);
-        UpdateAccountResponse result = accountService.exchangeCurrency(updateAccountDTO);
+        when(accountRepository.save(any())).thenReturn(accountEntity);
+        CreateAccountResponse result = accountService.createAccount(accountDTO);
 
         // then
-        assertNotNull(result);
+        verify(accountRepository, times(1)).save(any());
     }
 
     @Test
-    void testExchangeCurrency_whenAskingForTooMuchOtherCurrency_shouldThrow() throws NotEnoughMoneyException, AccountNotFoundException, CurrencyNotFoundException {
+    void testAddSubAccountIfRequired_SubAccountNotPresent() {
         // given
-        UpdateAccountDTO updateAccountDTO = createUpdateAccountDTO(BigDecimal.valueOf(100), PLN, USD);
-        ExchangeCurrencyResponse exchangeRate = createExchangeRate();
-        AccountEntity accountEntity = createAccountEntity(PLN, USD, BigDecimal.valueOf(123.45), BigDecimal.ZERO);
+        AllowedCurrency currencyCodeTo = AllowedCurrency.PLN;
+        List<SubAccountEntity> subAccountEntities = new ArrayList<>();
+        AccountEntity accountEntity = AccountEntity.builder().build();
+        accountEntity.setSubAccounts(subAccountEntities);
 
         // when
-        when(accountRepository.findByIdentificationNumber(any(UUID.class))).thenReturn(Optional.of(accountEntity));
-        when(exchangeRateProviderClient.getExchangeRate(anyString())).thenReturn(exchangeRate);
+        accountService.addSubAccountIfRequired(currencyCodeTo, subAccountEntities, accountEntity);
 
         // then
-        assertThrows(NotEnoughMoneyException.class, () -> accountService.exchangeCurrency(updateAccountDTO));
+        assertEquals(1, accountEntity.getSubAccounts().size());
+        assertEquals(currencyCodeTo, accountEntity.getSubAccounts().get(0).getCurrencyCode());
     }
 
     @Test
-    void testExchangeCurrency_whenAskingForTooMuchBaseCurrency_shouldThrow() {
+    void testAddSubAccountIfRequired_SubAccountPresent() {
         // given
-        UpdateAccountDTO updateAccountDTO = createUpdateAccountDTO(BigDecimal.valueOf(100), PLN, USD);
-        ExchangeCurrencyResponse exchangeRate = createExchangeRate();
-        AccountEntity accountEntity = createAccountEntity(PLN, USD, BigDecimal.valueOf(12.45), BigDecimal.ZERO);
+        AllowedCurrency currencyCodeTo = AllowedCurrency.PLN;
+        SubAccountEntity existingSubAccount = SubAccountEntity.builder().currencyCode(currencyCodeTo).build();
+        List<SubAccountEntity> subAccountEntities = Collections.singletonList(existingSubAccount);
+        AccountEntity accountEntity = AccountEntity.builder().subAccounts(subAccountEntities).build();
 
         // when
-        when(accountRepository.findByIdentificationNumber(any(UUID.class))).thenReturn(Optional.of(accountEntity));
-        when(exchangeRateProviderClient.getExchangeRate(anyString())).thenReturn(exchangeRate);
+        accountService.addSubAccountIfRequired(currencyCodeTo, subAccountEntities, accountEntity);
 
         // then
-        assertThrows(NotEnoughMoneyException.class, () -> accountService.exchangeCurrency(updateAccountDTO));
+        assertEquals(1, accountEntity.getSubAccounts().size());
+        assertEquals(existingSubAccount, accountEntity.getSubAccounts().get(0));
     }
-
-    @Test
-    void testExchangeCurrency_whenAskingForAccountThatDoesNotExsits_shouldThrow() {
-        // given
-        UpdateAccountDTO updateAccountDTO = createUpdateAccountDTO(BigDecimal.valueOf(100), PLN, USD);
-        ExchangeCurrencyResponse exchangeRate = createExchangeRate();
-
-        // then
-        assertThrows(AccountNotFoundException.class, () -> accountService.exchangeCurrency(updateAccountDTO));
-    }
-
 
 }
