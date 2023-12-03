@@ -28,7 +28,7 @@ import static com.nn.accountapp.model.enumeration.AllowedCurrency.PLN;
 @RequiredArgsConstructor
 public class ExchangeService {
 
-    private final AllowedCurrency BASE_CURRENCY_CODE = PLN;
+    private static final AllowedCurrency BASE_CURRENCY_CODE = PLN;
 
     private final AccountRepository accountRepository;
     private final ExchangeRateProviderClient exchangeRateProviderClient;
